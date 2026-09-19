@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agent import ask_query
+import subprocess
+import os
+
+if not os.path.exists("business.db"):
+    subprocess.run(["python","setup_db.py"])
 
 app=FastAPI()
 
