@@ -1,22 +1,25 @@
-from groq import Groq
-import os
-from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from agent import ask_query
 
-load_dotenv()
-client= Groq()
+app=FastAPI()
 
-response = client.chat.completions.create(
-    model="openai/gpt-oss-120b",
-    messages=[
-        {
-            "role": "system",
-            "content": "You are a helpful assistant."
-        },
-        {
-            "role": "user",
-            "content": "what is yur age?"
-        }
-    ]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
-print(response.choices[0].message.content)
+class Question(BaseModel):
+    question:str
+
+@app.get("/")
+def root():
+    return {"status":"SQL Agent is runnig"}
+
+@app.post("/ask")
+def ask_question(body:Question):
+    answer=ask_query(body.question)
+    return {"answer":answer}
